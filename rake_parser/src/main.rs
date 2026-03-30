@@ -19,10 +19,8 @@ So load Rakefile and its contents.
 use std::fs;
 use regex::Regex;
 use std::path::Path;
-fn scan() {
 
 
-}
 fn main() {
     let file_name = "Rakefile";
     
@@ -70,4 +68,5 @@ fn main() {
     for item in results {
         println!("{}", item);
     }
-}
+}   
+// help 
