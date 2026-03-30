@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/rake.dir/link.d CMakeFiles/rake.dir/rake_parser/src/cli.cpp.o -o rake   -L/home/pogo/Desktop/Rake/rake_parser/target/release  -Wl,-rpath,/home/pogo/Desktop/Rake/rake_parser/target/release: -lrake_parser

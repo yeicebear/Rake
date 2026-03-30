@@ -1,0 +1,8 @@
+/home/pogo/Desktop/Rake/build/CMakeFiles/rake_parser_lib.dir
+/home/pogo/Desktop/Rake/build/CMakeFiles/rake.dir
+/home/pogo/Desktop/Rake/build/CMakeFiles/edit_cache.dir
+/home/pogo/Desktop/Rake/build/CMakeFiles/rebuild_cache.dir
+/home/pogo/Desktop/Rake/build/CMakeFiles/list_install_components.dir
+/home/pogo/Desktop/Rake/build/CMakeFiles/install.dir
+/home/pogo/Desktop/Rake/build/CMakeFiles/install/local.dir
+/home/pogo/Desktop/Rake/build/CMakeFiles/install/strip.dir

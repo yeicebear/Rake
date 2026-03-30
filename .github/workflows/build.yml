@@ -1,0 +1,99 @@
+name: build, test, etc maybe release? idk
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+
+
+jobs: # JOBBBB
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            cmake_generator: "Unix Makefiles"
+            artifact_name: "rake"
+          - os: macos-latest
+            cmake_generator: "Unix Makefiles"
+            artifact_name: "rake"
+          - os: windows-latest
+            cmake_generator: "Visual Studio 17 2022"
+            artifact_name: "rake.exe"
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        override: true
+    - name: Install CMake
+      uses: lukka/get-cmake@latest
+    - name: Install dependencies (Ubuntu)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential
+
+    - name: Cache Rust build
+      uses: actions/cache@v3
+      with:
+        path: rake_parser/target
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Configure CMake
+      run: |
+        mkdir build
+        cd build
+        cmake .. -G "${{ matrix.cmake_generator }}" -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build
+      run: |
+        cd build
+        cmake --build . --config Release -j ${{ (runner.os == 'Windows' && '4') || '$(nproc)' }}
+
+    - name: Test
+      run: |
+        # Create a simple Rakefile for testing
+        cat > Rakefile << 'EOF'
+[test_section]
+1) echo "Test successful"
+EOF
+        
+        if [ "${{ runner.os }}" = "Windows" ]; then
+          set "PATH=%CD%\build\Release;%PATH%"
+          rake.exe --test_section
+        else
+          export LD_LIBRARY_PATH="${{ github.workspace }}/rake_parser/target/release:$LD_LIBRARY_PATH"
+          ./build/rake --test_section
+        fi
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: rake-${{ runner.os }}
+        path: |
+          build/${{ matrix.artifact_name }}
+          rake_parser/target/release/librake_parser.*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Download all artifacts
+      uses: actions/download-artifact@v3
+    
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          rake-*/**/*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
