@@ -1,0 +1,40 @@
+=== SMART RAKE CACHING DEMO ===
+
+Test 1: First run (should execute)
+$ ./build/rake --Example_func
+[EXEC] echo "this func is an example"
+this func is an example
+[SUCCESS] Task 'Example_func' completed and cached
+
+Test 2: Second run, no changes (should SKIP)
+$ ./build/rake --Example_func
+[CACHED] Task 'Example_func' is up to date - skipping
+
+Test 3: Modify input file, re-run (should EXECUTE again)
+$ echo "modified" >> Rakefile && ./build/rake --Example_func
+[EXEC] echo "this func is an example"
+this func is an example
+[SUCCESS] Task 'Example_func' completed and cached
+
+Test 4: Run again after modification, no further changes (should SKIP)
+$ ./build/rake --Example_func
+[CACHED] Task 'Example_func' is up to date - skipping
+
+=== HOW IT WORKS ===
+
+Rakefile Syntax:
+[task_name]
+inputs: file1.txt, *.rs, Makefile
+outputs: binary, output.txt
+depends: other_task
+1) command one
+2) command two
+3) command three
+
+Smart Features:
+✓ Tracks file modification times via nanosecond timestamps
+✓ Skips tasks if inputs haven't changed since last run
+✓ Re-runs if input files are modified
+✓ Stores cache in .rake_cache file
+✓ Works cross-platform (Linux, macOS, Windows)
+✓ Glob patterns supported (*.rs, src/*)
