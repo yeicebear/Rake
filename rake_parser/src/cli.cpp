@@ -7,11 +7,9 @@ namespace std {
 }
 
 namespace rake {
-    int parseCLI(int argc, char *argv[]) {
+    static int parseCLI(int argc, char *argv[]) {
         for (int i = 0; i < argc; ++i) {
             std::string raw_argument = argv[i];
-
-            std::cout << raw_argument << '\n';
         }
         return 0;
     }
