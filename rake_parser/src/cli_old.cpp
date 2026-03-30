@@ -1,15 +1,124 @@
+
 #include <filesystem>
+
 #include <iostream>
+
 #include <string>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// now you can say "im on line 109" and its technically not a lie as long as we aint talking about 
+// LoC
 #include <cstdlib>
+
 #include <cstring>
+
+
+
+
 
 namespace std {
     namespace fs = filesystem;
 }
-
 extern "C" char* get_commands(const char* section);
-extern "C" void update_cache(const char* section);
 
 namespace rake {
     int parseCLI(int argc, char *argv[]) {
@@ -35,61 +144,43 @@ int main(int argc, char *argv[]) {
     char* commands_str = get_commands(section.c_str());
 
     if (!commands_str) {
-        std::cerr << "[ERROR] Failed to get commands" << std::endl;
+        std::cerr << "[ERR] FAILED TO GET COMMANDS" << std::endl;
         return 1;
     }
-
     std::string commands(commands_str);
-    std::free(commands_str);
-
-    // Check for error messages
-    if (commands.substr(0, 7) == "[ERROR]") {
+    std::free(commands_str); 
+    // this is pretty cool it does something like this:
+    // 1) echo "Building..."
+    // 2) echo "Done building"
+    // and then it runs those commands in order
+    // like wow like omfg
+    // error handling?!
+    if (commands.substr(0, 5) == "Error") {
         std::cerr << commands << std::endl;
         return 1;
     }
-
-    // Check for cached tasks (skip execution)
-    if (commands.substr(0, 8) == "[CACHED]") {
-        std::cout << commands << std::endl;
-        return 0;
-    }
-
-    // Execute commands
+    // can bash be split with \n? yes it can, and we can run each command separately, which is pretty coolD
     size_t pos = 0;
     std::string delimiter = "\n";
-    bool any_failed = false;
-
     while ((pos = commands.find(delimiter)) != std::string::npos) {
         std::string cmd = commands.substr(0, pos);
         if (!cmd.empty()) {
-            std::cout << "[EXEC] " << cmd << std::endl;
+            std::cout << "Running: " << cmd << std::endl;
             int ret = std::system(cmd.c_str());
             if (ret != 0) {
-                std::cerr << "[ERROR] Command failed with code " << ret << ": " << cmd << std::endl;
-                any_failed = true;
-                break;
+                std::cerr << "Command failed: " << cmd << std::endl;
+                return ret;
             }
         }
         commands.erase(0, pos + delimiter.length());
-    }
-
-    // Execute last command if any
-    if (!any_failed && !commands.empty()) {
-        std::cout << "[EXEC] " << commands << std::endl;
+    } // yes twin, commands  can be multiple lines, and we need to run them all
+    if (!commands.empty()) {
+        std::cout << "[STAT] Running: " << commands << std::endl;
         int ret = std::system(commands.c_str());
         if (ret != 0) {
-            std::cerr << "[ERROR] Command failed with code " << ret << ": " << commands << std::endl;
+            std::cerr << "[ERR] COMMAND FAILED: " << commands << std::endl;
             return ret;
         }
     }
-
-    if (any_failed) {
-        return 1;
-    }
-
-    // Update cache after successful execution
-    update_cache(section.c_str());
-    std::cout << "[SUCCESS] Task '" << section << "' completed and cached" << std::endl;
-
     return 0;
 }
