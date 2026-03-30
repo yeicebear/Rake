@@ -21,6 +21,11 @@ struct Result {
     ResultData data;
 };
 
+// C++ Implements these
+Result rake_ResultOk(void *value);
+Result rake_ResultError(const char *msg);
+// END
+
 #ifdef __cplusplus
 }
 #endif
